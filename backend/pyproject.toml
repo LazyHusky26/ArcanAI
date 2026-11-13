@@ -1,0 +1,29 @@
+[project]
+name = "arcanai"
+version = "0.1.0"
+description = "AI tarot reader (RAG)"
+requires-python = ">=3.11"
+dependencies = [
+    "torch",
+    "sentence-transformers>=2.7",
+    "transformers>=4.51",
+    "psycopg[binary]>=3.2",
+    "pgvector>=0.3",
+    "python-dotenv>=1.0",
+]
+
+# Make torch come from the CUDA build instead of the CPU-only one on PyPI
+[tool.uv.sources]
+torch = { index = "pytorch-cu126" }
+
+[[tool.uv.index]]
+name = "pytorch-cu126"
+url = "https://download.pytorch.org/whl/cu126"
+explicit = true
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/arcanai"]

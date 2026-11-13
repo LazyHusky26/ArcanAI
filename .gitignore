@@ -1,0 +1,25 @@
+# Claude Code
+CLAUDE.md
+
+# Secrets
+.env
+
+# Scraped corpus (copyrighted, never commit)
+data/
+
+# Downloaded embedding models (~1.2GB)
+models/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Node
+node_modules/
+dist/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
