@@ -1,0 +1,35 @@
+{
+  "one_card": {
+    "name": "One Card",
+    "description": "Draw one card for a simple answer, message or piece of guidance: the main energy around your situation and what to focus on.",
+    "when_to_use": "A quick message or daily guidance.",
+    "example_question": "What energy should I focus on today?",
+    "positions": [
+      {"name": "The Message", "meaning": "The main energy around the situation, and the guidance to focus on"}
+    ]
+  },
+  "three_card": {
+    "name": "Three Cards",
+    "description": "Each of the three cards stands for a different part of your situation, so you can understand it more deeply.",
+    "when_to_use": "A specific question where you want clarity.",
+    "example_question": "Where is my career heading?",
+    "positions": [
+      {"name": "Past", "meaning": "What led to the situation and still shapes it"},
+      {"name": "Present", "meaning": "Where things stand right now"},
+      {"name": "Future", "meaning": "Where things are heading if nothing changes"}
+    ]
+  },
+  "five_card": {
+    "name": "Five Cards",
+    "description": "Five cards explore different layers of a question: what is happening, what is influencing it, and what you can do about it.",
+    "when_to_use": "A deeper reading about love, career, relationships, decisions or personal growth.",
+    "example_question": "Should I accept the job offer in another city?",
+    "positions": [
+      {"name": "Current Situation", "meaning": "What is happening now"},
+      {"name": "Influences", "meaning": "What is influencing the situation"},
+      {"name": "Hidden Obstacle", "meaning": "What stands in the way, possibly unseen"},
+      {"name": "Advice or Action", "meaning": "What the querent can do"},
+      {"name": "Possible Outcome", "meaning": "Where this path may lead"}
+    ]
+  }
+}
