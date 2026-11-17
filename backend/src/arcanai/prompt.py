@@ -45,8 +45,22 @@ def _notes(card: str, orientation: str, question: str) -> str:
     )
 
 
+MAX_QUESTION = 500
+
+
+def clean_question(question: str) -> str:
+    # Trim spaces; reject empty or very long questions
+    question = " ".join(question.split())
+    if not question:
+        raise ValueError("Please enter a question.")
+    if len(question) > MAX_QUESTION:
+        raise ValueError(f"Question is too long ({len(question)} characters; the limit is {MAX_QUESTION}).")
+    return question
+
+
 def build_prompt(question: str, spread_id: str, drawn: list[dict], depth: str = "detailed") -> dict:
     # Returns the system rules and the user message separately (Gemini takes both)
+    question = clean_question(question)
     blocks = []
     for i, d in enumerate(drawn, 1):
         blocks.append(
