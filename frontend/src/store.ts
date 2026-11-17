@@ -48,7 +48,12 @@ export const useStore = create<State>((set, get) => ({
   setDepth: (depth) => set({ depth }),
   setQuestion: (question) => set({ question }),
   flip: (i) => set((s) => ({ revealed: s.revealed.map((r, j) => (j === i ? true : r)) })),
-  revealAll: () => set((s) => ({ revealed: s.revealed.map(() => true) })),
+  // Flip the remaining cards one after another (not all at once) so the reveal feels staged
+  revealAll: () => {
+    get().revealed.forEach((done, i) => {
+      if (!done) setTimeout(() => get().flip(i), i * 350);
+    });
+  },
 
   startReading: async () => {
     const { question, spreadId, depth } = get();
@@ -56,8 +61,10 @@ export const useStore = create<State>((set, get) => ({
     await streamReading(
       { question, spread: spreadId, depth },
       {
-        onCards: (cards) => set({ phase: "reading", cards, revealed: cards.map(() => false) }),
-        onText: (piece) => set((s) => ({ text: s.text + piece })),
+        // Cards are decided early but stay hidden (phase stays "drawing") until the AI starts answering
+        onCards: (cards) => set({ cards, revealed: cards.map(() => false) }),
+        onText: (piece) =>
+          set((s) => ({ text: s.text + piece, phase: s.phase === "drawing" ? "reading" : s.phase })),
         onDone: () => set({ phase: "done" }),
         onError: (error) => set({ phase: "error", error }),
       },

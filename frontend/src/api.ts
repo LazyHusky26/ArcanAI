@@ -1,8 +1,12 @@
+import { MOCK_SPREADS, mockStream } from "./mock";
 import type { Depth, DrawnCard, Spread } from "./types";
 
 const API = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
+// Backend is disconnected for now. To reconnect: create frontend/.env with VITE_USE_MOCK=false
+const USE_MOCK = (import.meta.env.VITE_USE_MOCK ?? "true") !== "false";
 
 export async function getSpreads(): Promise<Spread[]> {
+  if (USE_MOCK) return MOCK_SPREADS;
   const res = await fetch(`${API}/spreads`);
   if (!res.ok) throw new Error("Could not load the spreads.");
   return res.json();
@@ -21,6 +25,7 @@ export async function streamReading(
   body: { question: string; spread: string; depth: Depth },
   h: Handlers,
 ): Promise<void> {
+  if (USE_MOCK) return mockStream(body, h);
   let res: Response;
   try {
     res = await fetch(`${API}/reading`, {
