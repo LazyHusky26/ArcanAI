@@ -4,6 +4,8 @@ An AI tarot reader.
 
 You ask a question, pick a spread (1, 3 or 5 cards) and how long you want the reading to be. The code draws the cards. It then looks up what each card means in a database and gives those notes to Gemini, which writes the reading and streams it to the page.
 
+<img width="1280" height="705" alt="image" src="https://github.com/user-attachments/assets/35cc54ad-c313-4c0b-9564-ab7cd4d2aeb1" />
+
 ## How it works
 
 1. **Draw.** Plain Python picks the cards and decides which are reversed. The AI never chooses cards.
