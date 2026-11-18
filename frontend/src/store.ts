@@ -42,8 +42,7 @@ export const useStore = create<State>((set, get) => ({
   text: "",
   error: "",
   settingsOpen: false,
-  // Until the user chooses, the smoke cursor is on unless their system asks for reduced motion
-  cursorOn: !window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  cursorOn: true, // on until the user turns it off in Settings
 
   setSettingsOpen: (settingsOpen) => set({ settingsOpen }),
   setCursorOn: (cursorOn) => {
