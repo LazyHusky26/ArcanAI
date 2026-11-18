@@ -11,7 +11,8 @@ export default function DeckShuffle() {
       className="deck"
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.2, transition: { duration: 0.5, ease: "easeIn" } }}
+      // On exit the ring shrinks into the centre (while spinning faster, below); the dealt cards appear from that spot
+      exit={{ opacity: 0, scale: 0.15, transition: { duration: 0.6, ease: "easeIn" } }}
     >
       <div className="deck-glow" />
       {/* Tilt the ring so we look down on it a little; the tilt gently sways */}
@@ -24,6 +25,7 @@ export default function DeckShuffle() {
           className="ring"
           animate={{ rotateY: 360 }}
           transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+          exit={{ rotateY: 900, transition: { duration: 0.6, ease: "easeIn" } }}
         >
           {Array.from({ length: COUNT }, (_, i) => (
             <div

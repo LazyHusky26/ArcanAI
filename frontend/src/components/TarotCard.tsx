@@ -6,8 +6,9 @@ import Burst from "./Burst";
 // "The Fool" -> "the-fool": the image filename in public/cards/
 const slug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-const CARD_W = 150; // keep in sync with .card-wrap in styles.css
+const CARD_W = 160; // keep in sync with --card-w in styles.css
 const GAP = 24;
+const START_Y = -30; // lines the pile up with the centre of the collapsing ring
 
 interface Props {
   card: DrawnCard;
@@ -26,6 +27,8 @@ export default function TarotCard({ card, index, total, revealed, onFlip }: Prop
   const imgFailed = attempt >= sources.length;
   const [landed, setLanded] = useState(false);
   const reversed = card.orientation === "reversed";
+
+  const delay = 0.35 + index * 0.18; // wait for the ring to gather, then deal one card at a time
 
   // Where the card starts: stacked in the middle of the row, where the deck was
   const [startX] = useState(((total - 1) / 2 - index) * (CARD_W + GAP));
@@ -53,12 +56,21 @@ export default function TarotCard({ card, index, total, revealed, onFlip }: Prop
   return (
     <motion.div
       className="slot"
-      initial={{ x: startX, y: 0, rotate: startTilt, scale: 0.7, opacity: 0 }}
-      animate={{ x: 0, y: [0, -90, 0], rotate: 0, scale: [0.7, 1.08, 1], opacity: 1 }}
-      transition={{ duration: 0.9, delay: 0.2 + index * 0.3, ease: "easeOut", times: [0, 0.55, 1] }}
+      // Starts as a loose pile where the ring collapsed (already visible, so there is no gap), then flies out
+      initial={{ x: startX, y: START_Y, rotate: startTilt, scale: 0.8, opacity: 0, filter: "blur(4px)" }}
+      animate={{ x: 0, y: [null, -120, 0], rotate: 0, scale: 1, opacity: 1, filter: "blur(0px)" }}
+      // x, rotate and scale are springs (they overshoot and settle); y is an arc up and over, so the path curves
+      transition={{
+        x: { type: "spring", stiffness: 85, damping: 13, delay },
+        rotate: { type: "spring", stiffness: 70, damping: 11, delay },
+        scale: { type: "spring", stiffness: 120, damping: 14, delay },
+        y: { duration: 1, times: [0, 0.4, 1], ease: "easeInOut", delay },
+        opacity: { duration: 0.2, delay },
+        filter: { duration: 0.6, delay },
+      }}
       onAnimationComplete={() => setLanded(true)}
     >
-      <div className="slot-label">{card.position}</div>
+      <div className={`slot-label ${landed ? "shown" : ""}`}>{card.position}</div>
 
       <motion.div
         className="card-wrap"

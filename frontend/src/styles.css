@@ -7,8 +7,8 @@
   --muted: #8da2c6;
   --accent: #6fd3ff;
   --candle: #ffcf8a;
-  --card-w: 150px; /* keep in sync with CARD_W in TarotCard.tsx */
-  --card-h: 255px;
+  --card-w: 160px; /* keep in sync with CARD_W in TarotCard.tsx */
+  --card-h: 226px; /* the card art is 1:1.41 */
 }
 
 * { box-sizing: border-box; }
@@ -78,7 +78,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 /* Orbiting ring of cards (centered on the table; zero-size anchor, children are positioned around it) */
 .deck { position: absolute; top: calc(var(--card-h) / 2 + 10px); left: 50%; width: 0; height: 0; perspective: 1000px; }
 .ring-tilt, .ring { position: absolute; width: 0; height: 0; transform-style: preserve-3d; }
-.orbit-card { width: 90px; height: 153px; left: -45px; top: -76px; }
+.orbit-card { width: 100px; height: 141px; left: -50px; top: -70px; }
 .orbit-card.face { backface-visibility: visible; } /* both sides of a ring card are the card back */
 .deck-glow {
   position: absolute; width: 360px; height: 360px; left: -180px; top: -180px; border-radius: 50%;
@@ -88,7 +88,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 /* A card slot: label, the card, and a caption */
 .slot { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-.slot-label { font-size: 0.8rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+.slot-label { font-size: 0.8rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; opacity: 0; transition: opacity 0.5s; }
+.slot-label.shown { opacity: 1; } /* labels appear once the card has landed, not while it is still flying */
 .slot-caption { min-height: 1.5em; color: var(--accent); opacity: 0; transition: opacity 0.6s 0.5s; text-align: center; }
 .slot-caption.shown { opacity: 1; }
 .tag {
