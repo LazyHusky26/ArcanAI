@@ -15,6 +15,22 @@ export default function DeckShuffle() {
       exit={{ opacity: 0, scale: 0.15, transition: { duration: 0.6, ease: "easeIn" } }}
     >
       <div className="deck-glow" />
+      {/* A wider, slower ring of tiny lights turning the other way */}
+      <motion.div className="ring-tilt" style={{ rotateX: -15 }}>
+        <motion.div
+          className="ring"
+          animate={{ rotateY: -360 }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        >
+          {Array.from({ length: 28 }, (_, i) => (
+            <div
+              key={i}
+              className="dust"
+              style={{ transform: `rotateY(${(360 / 28) * i}deg) translateZ(255px) translateY(${(i % 5) * 14 - 28}px)` }}
+            />
+          ))}
+        </motion.div>
+      </motion.div>
       {/* Tilt the ring so we look down on it a little; the tilt gently sways */}
       <motion.div
         className="ring-tilt"

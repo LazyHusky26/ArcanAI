@@ -73,7 +73,7 @@ export default function TarotCard({ card, index, total, revealed, onFlip }: Prop
       <div className={`slot-label ${landed ? "shown" : ""}`}>{card.position}</div>
 
       <motion.div
-        className="card-wrap"
+        className={`card-wrap ${landed ? "landed" : ""}`}
         animate={landed ? { y: [0, -7, 0] } : { y: 0 }}
         transition={{ duration: 3 + index * 0.4, repeat: Infinity, ease: "easeInOut" }}
       >

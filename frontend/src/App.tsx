@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, type ReactNode } from "react";
 import AskScreen from "./components/AskScreen";
+import Atmosphere from "./components/Atmosphere";
 import ReadingScreen from "./components/ReadingScreen";
 import { useStore } from "./store";
 
@@ -28,7 +29,9 @@ export default function App() {
   const onTable = phase === "drawing" || phase === "reading" || phase === "done";
 
   return (
-    <main>
+    <>
+      <Atmosphere />
+      <main>
       <AnimatePresence mode="wait">
         {phase === "ask" && (
           <Screen key="ask">
@@ -44,13 +47,14 @@ export default function App() {
           <Screen key="error">
             <div className="center error">
               <p>{error}</p>
-              <button className="primary" onClick={reset}>
+              <button className="seal" onClick={reset}>
                 Try again
               </button>
             </div>
           </Screen>
         )}
       </AnimatePresence>
-    </main>
+      </main>
+    </>
   );
 }

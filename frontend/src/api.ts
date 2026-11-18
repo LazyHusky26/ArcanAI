@@ -2,8 +2,8 @@ import { MOCK_SPREADS, mockStream } from "./mock";
 import type { Depth, DrawnCard, Spread } from "./types";
 
 const API = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
-// Backend is disconnected for now. To reconnect: create frontend/.env with VITE_USE_MOCK=false
-const USE_MOCK = (import.meta.env.VITE_USE_MOCK ?? "true") !== "false";
+// Talks to the real backend by default. For UI work without it, create frontend/.env with VITE_USE_MOCK=true
+const USE_MOCK = import.meta.env.VITE_USE_MOCK === "true";
 
 export async function getSpreads(): Promise<Spread[]> {
   if (USE_MOCK) return MOCK_SPREADS;
