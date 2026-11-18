@@ -12,8 +12,6 @@ You ask a question, pick a spread (1, 3 or 5 cards) and how long you want the re
 2. **Retrieve.** For each card, the app searches a Postgres database (pgvector) for the most relevant notes, using a local embedding model (Qwen3-Embedding-0.6B).
 3. **Write.** One call to Gemini with the question, the cards and the notes. The reply streams to the browser.
 
-<img width="1264" height="707" alt="image" src="https://github.com/user-attachments/assets/8e057cc4-2d18-4f00-a335-9941f24bfaf2" />
-
 ## Stack
 
 - Backend: Python, FastAPI, psycopg 3, sentence-transformers (managed with `uv`)
@@ -83,15 +81,24 @@ npm run dev
 
 This starts the backend (port 8000) and the frontend (port 5173) together. Open http://localhost:5173. To run them separately, use `uv run uvicorn arcanai.api:app --reload` in `backend/` and `npm run dev` in `frontend/`.
 
+## How to use
+
+1. Click the gear icon (top right) and paste your Gemini API key, then press Check. The welcome screen stays red until a key and model are set.
+2. Pick a model from the list, close Settings, and press Begin.
+3. Type your question, choose a spread (1, 3 or 5 cards) and a length, then press the seal.
+4. Click each card to turn it over, or use "Reveal all". The reading appears once every card is turned.
+
+<img width="1264" height="707" alt="image" src="https://github.com/user-attachments/assets/8e057cc4-2d18-4f00-a335-9941f24bfaf2" />
+
 ## Settings
 
-Click the gear icon (top right):
+The gear icon (top right) holds:
 
 - **API key:** paste your Gemini key and press Check. If Gemini accepts it, it's saved.
 - **Model:** pick from the Gemini text models your key can use.
-- **Smoke cursor:** turn the cursor effect on or off.
+- **Smoke cursor:** turn the cursor effect on or off (on by default).
 
-Everything is saved in `data/settings.json` on the machine running the backend, which is gitignored. The key is never sent back to the browser. You need to add a key here before your first reading.
+Everything is saved in `data/settings.json` on the machine running the backend, which is gitignored. The key is never sent back to the browser.
 
 ## Handy commands
 
