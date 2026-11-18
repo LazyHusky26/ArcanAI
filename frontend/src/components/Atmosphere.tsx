@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, type CSSProperties } from "react";
+import { useMemo, type CSSProperties } from "react";
 import Astrolabe from "./Astrolabe";
 
 // Same input gives the same "random" number, so the dust sits in the same places on every render
@@ -9,25 +9,6 @@ const rand = (i: number, k: number) => {
 
 // The fixed background behind every screen. Everything here is decoration, so it is hidden from screen readers.
 export default function Atmosphere() {
-  const light = useRef<HTMLDivElement>(null);
-
-  // A soft light follows the pointer, as if the page were lit by a candle
-  useEffect(() => {
-    let raf = 0;
-    const move = (e: PointerEvent) => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        light.current?.style.setProperty("--x", `${e.clientX}px`);
-        light.current?.style.setProperty("--y", `${e.clientY}px`);
-      });
-    };
-    window.addEventListener("pointermove", move);
-    return () => {
-      window.removeEventListener("pointermove", move);
-      cancelAnimationFrame(raf);
-    };
-  }, []);
-
   const motes = useMemo(
     () =>
       Array.from({ length: 34 }, (_, i) => ({
@@ -63,7 +44,6 @@ export default function Atmosphere() {
           }
         />
       ))}
-      <div className="cursor-light" ref={light} />
       <div className="grain" />
       <div className="vignette" />
     </div>
