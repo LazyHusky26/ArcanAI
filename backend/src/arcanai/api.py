@@ -62,6 +62,11 @@ def reading(req: ReadingRequest):
         question = clean_question(req.question)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    # No key or model saved (or the key was removed): stop before drawing anything
+    if not settings.api_key():
+        raise HTTPException(status_code=400, detail="Add your Gemini API key in Settings (top right) first.")
+    if not settings.model():
+        raise HTTPException(status_code=400, detail="Pick a model in Settings (top right) first.")
     drawn = draw(req.spread)  # code draws the cards
     prompt = build_prompt(question, req.spread, drawn, req.depth)  # retrieve notes + build prompt
 

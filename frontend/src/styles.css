@@ -250,3 +250,10 @@ textarea:focus { outline: none; border-bottom-color: var(--accent); box-shadow: 
 .toggle input:checked + i { border-color: var(--brass); background: rgba(201, 169, 106, 0.12); }
 .toggle input:checked + i::after { transform: translateX(22px); background: var(--brass); }
 .toggle input:focus-visible + i { outline: 1px solid var(--accent); outline-offset: 3px; }
+
+/* ---------- Welcome ---------- */
+.welcome { max-width: 560px; margin: 22vh auto 0; text-align: center; }
+.problem { margin: 28px 0 0; color: #e5675e; font-style: italic; font-size: 1.35rem; line-height: 1.5; text-shadow: 0 0 22px rgba(229, 103, 94, 0.25); }
+/* The gear pulses while setup is missing, so it is clear where to go */
+.gear.needs { color: var(--brass); border-color: var(--brass); animation: gear-call 2s ease-in-out infinite; }
+@keyframes gear-call { 50% { box-shadow: 0 0 22px rgba(201, 169, 106, 0.55); } }

@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { useStore } from "../store";
+import Sigil from "./Sigil";
 import type { Depth } from "../types";
 
 // Depth is shown as a moon: crescent (quick), half (detailed), full (deep)
@@ -23,29 +24,6 @@ const DEPTHS: { id: Depth; label: string; phase: "crescent" | "half" | "full"; h
   { id: "detailed", label: "Detailed", phase: "half", hint: "A fuller reading" },
   { id: "deep", label: "Deep", phase: "full", hint: "Symbolism and context" },
 ];
-
-// A small sun sigil above the title
-function Sigil() {
-  return (
-    <svg className="sigil" viewBox="-30 -30 60 60" aria-hidden>
-      <circle r="9" />
-      <circle r="14" />
-      {Array.from({ length: 12 }, (_, i) => {
-        const a = (i * 30 * Math.PI) / 180;
-        const long = i % 3 === 0;
-        return (
-          <line
-            key={i}
-            x1={Math.cos(a) * 17}
-            y1={Math.sin(a) * 17}
-            x2={Math.cos(a) * (long ? 28 : 23)}
-            y2={Math.sin(a) * (long ? 28 : 23)}
-          />
-        );
-      })}
-    </svg>
-  );
-}
 
 // The spread shown as a small fan of card backs; the fan opens when hovered or chosen
 function Fan({ count, open }: { count: number; open: boolean }) {

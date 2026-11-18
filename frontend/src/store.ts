@@ -2,12 +2,16 @@ import { create } from "zustand";
 import { getSettings, getSpreads, saveSettings, streamReading } from "./api";
 import type { Depth, DrawnCard, Spread } from "./types";
 
-// ask: the form | drawing: waiting for the cards | reading: cards shown, text streaming
-// done: finished | error: something failed
-export type Phase = "ask" | "drawing" | "reading" | "done" | "error";
+// welcome: first screen, checks the setup | ask: the form | drawing: waiting for the cards
+// reading: cards shown, text streaming | done: finished | error: something failed
+export type Phase = "welcome" | "ask" | "drawing" | "reading" | "done" | "error";
+
+// What the welcome screen found: still checking, backend down, no key, no model, or good to go
+export type Status = "checking" | "offline" | "no_key" | "no_model" | "ready";
 
 interface State {
   phase: Phase;
+  status: Status;
   spreads: Spread[];
   spreadId: string;
   depth: Depth;
@@ -20,8 +24,8 @@ interface State {
   cursorOn: boolean;
   setSettingsOpen: (open: boolean) => void;
   setCursorOn: (on: boolean) => void;
-  loadSettings: () => Promise<void>;
-  loadSpreads: () => Promise<void>;
+  init: () => Promise<void>;
+  begin: () => void;
   setSpread: (id: string) => void;
   setDepth: (d: Depth) => void;
   setQuestion: (q: string) => void;
@@ -32,7 +36,8 @@ interface State {
 }
 
 export const useStore = create<State>((set, get) => ({
-  phase: "ask",
+  phase: "welcome",
+  status: "checking",
   spreads: [],
   spreadId: "three_card",
   depth: "detailed",
@@ -44,27 +49,31 @@ export const useStore = create<State>((set, get) => ({
   settingsOpen: false,
   cursorOn: true, // on until the user turns it off in Settings
 
-  setSettingsOpen: (settingsOpen) => set({ settingsOpen }),
+  setSettingsOpen: (settingsOpen) => {
+    set({ settingsOpen });
+    if (!settingsOpen) get().init(); // the key or model may have changed, so check again
+  },
   setCursorOn: (cursorOn) => {
     set({ cursorOn });
     saveSettings({ cursor: cursorOn }).catch(() => {}); // the switch still works if saving fails
   },
-  loadSettings: async () => {
-    try {
-      const { cursor } = await getSettings();
-      if (cursor !== null) set({ cursorOn: cursor });
-    } catch {
-      // the backend may be down; loadSpreads shows that error
-    }
-  },
 
-  loadSpreads: async () => {
+  // Checks the backend and the saved key/model. Runs at start and whenever Settings closes.
+  init: async () => {
     try {
-      set({ spreads: await getSpreads() });
-    } catch (e) {
-      set({ phase: "error", error: (e as Error).message });
+      const { has_key, model, cursor } = await getSettings();
+      const status: Status = !has_key ? "no_key" : !model ? "no_model" : "ready";
+      if (cursor !== null) set({ cursorOn: cursor });
+      if (status === "ready" && get().spreads.length === 0) set({ spreads: await getSpreads() });
+      set({ status });
+    } catch {
+      set({ status: "offline" });
     }
+    // If the key went away while on the question form, go back to the welcome screen
+    if (get().phase === "ask" && get().status !== "ready") set({ phase: "welcome" });
   },
+  begin: () => set({ phase: "ask" }),
+
   setSpread: (spreadId) => set({ spreadId }),
   setDepth: (depth) => set({ depth }),
   setQuestion: (question) => set({ question }),
@@ -91,5 +100,8 @@ export const useStore = create<State>((set, get) => ({
       },
     );
   },
-  reset: () => set({ phase: "ask", cards: [], revealed: [], text: "", error: "" }),
+  reset: () => {
+    set({ phase: get().spreads.length ? "ask" : "welcome", cards: [], revealed: [], text: "", error: "" });
+    get().init();
+  },
 }));
