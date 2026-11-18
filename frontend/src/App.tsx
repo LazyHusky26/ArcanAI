@@ -41,7 +41,7 @@ export default function App() {
             style={{ opacity: 0.7 }}
             size={45}
             trailLength={18}
-            inertia={0.25}
+            inertia={0.1}
             turbulence={0.5}
             drift={0.3}
             bloomStrength={0.35}
