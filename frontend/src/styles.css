@@ -176,21 +176,25 @@ textarea:focus { outline: none; border-bottom-color: var(--accent); box-shadow: 
 .front-inner { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
 .front-inner img { width: 100%; height: 100%; object-fit: cover; }
 .card-name { padding: 12px; text-align: center; font-family: var(--display); color: var(--accent); }
-.shine { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.4) 50%, transparent 65%); }
 .glare { position: absolute; inset: 0; border-radius: 6px; pointer-events: none; mix-blend-mode: screen; }
 
-/* Effects: ring when a card lands, burst when it flips */
-.land-ring, .burst-ring { position: absolute; inset: 0; border-radius: 8px; border: 1px solid var(--accent); pointer-events: none; }
-.burst { position: absolute; inset: 0; pointer-events: none; display: flex; align-items: center; justify-content: center; }
-.burst-ring { border-radius: 50%; inset: 25%; }
-.spark { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: #bff0ff; box-shadow: 0 0 10px 2px rgba(95, 208, 240, 0.9); }
+/* A faint ring when a card lands */
+.land-ring { position: absolute; inset: 0; border-radius: 8px; border: 1px solid var(--accent); pointer-events: none; }
 
 /* ---------- The written reading: a dark page with a drop cap ---------- */
 .reading { --n: 26px; max-width: 780px; margin: 64px auto 0; padding: 48px 56px 52px; font-size: 1.3rem; line-height: 1.8; }
 .reading h2 { margin: 2.4em 0 1em; text-align: center; font-family: var(--display); font-weight: 400; font-size: 1rem; letter-spacing: 0.32em; text-indent: 0.32em; text-transform: uppercase; color: var(--brass); }
 .reading h2::after { content: ""; display: block; width: 64px; height: 1px; margin: 12px auto 0; background: var(--brass); opacity: 0.55; }
 .reading h2:first-child { margin-top: 0; }
-.reading h3 { margin: 2em 0 0.3em; font-family: var(--display); font-weight: 400; font-size: 0.95rem; letter-spacing: 0.16em; color: #9fdcf0; }
+.reading h3 {
+  display: flex; align-items: baseline; gap: 12px; margin: 2em 0 0.6em; padding-bottom: 0.45em;
+  font-family: var(--display); font-weight: 400; font-size: 1rem; letter-spacing: 0.14em; color: #a9e4f7;
+  border-bottom: 1px solid rgba(58, 88, 120, 0.55);
+}
+.reading h3::before { content: ""; flex: none; width: 7px; height: 7px; background: var(--brass); transform: rotate(45deg) translateY(-1px); }
+.reading ul { margin: 0.8em 0 0.4em; padding-left: 1.3em; }
+.reading li { margin: 0.5em 0; }
+.reading li::marker { color: var(--brass); }
 .reading p { margin: 0.9em 0; }
 .reading h2:first-child + p::first-letter { float: left; padding: 0.06em 0.12em 0 0; font-family: var(--display); font-size: 3.7em; line-height: 0.8; color: var(--brass); }
 .reading strong { font-weight: 600; }

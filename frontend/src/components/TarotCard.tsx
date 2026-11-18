@@ -1,7 +1,6 @@
 import { motion, useMotionTemplate, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useState, type PointerEvent } from "react";
 import type { DrawnCard } from "../types";
-import Burst from "./Burst";
 
 // "The Fool" -> "the-fool": the image filename in public/cards/
 const slug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -97,8 +96,8 @@ export default function TarotCard({ card, index, total, revealed, onFlip }: Prop
             onClick={onFlip}
             aria-pressed={revealed}
             aria-label={revealed ? `${card.card}, ${card.orientation}` : `Reveal the card for ${card.position}`}
-            animate={{ rotateY: revealed ? 180 : 0, scale: revealed ? [1, 1.18, 1] : 1 }}
-            transition={{ duration: 0.8, ease: "easeInOut" }}
+            animate={{ rotateY: revealed ? 180 : 0 }}
+            transition={{ duration: 0.7, ease: "easeInOut" }}
             whileHover={revealed ? undefined : { y: -8 }}
           >
             <div className="face back" />
@@ -111,20 +110,10 @@ export default function TarotCard({ card, index, total, revealed, onFlip }: Prop
                   <img src={sources[attempt]} alt={card.card} onError={() => setAttempt((a) => a + 1)} />
                 )}
               </div>
-              {revealed && (
-                <motion.div
-                  className="shine"
-                  initial={{ x: "-120%" }}
-                  animate={{ x: "120%" }}
-                  transition={{ duration: 0.9, delay: 0.5, ease: "easeInOut" }}
-                />
-              )}
             </div>
           </motion.button>
           <motion.div className="glare" style={{ background: glare }} />
         </motion.div>
-
-        {revealed && <Burst />}
       </motion.div>
 
       <div className={`slot-caption ${revealed ? "shown" : ""}`}>
