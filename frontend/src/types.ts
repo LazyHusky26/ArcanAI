@@ -17,3 +17,15 @@ export interface DrawnCard {
   card: string;
   orientation: "upright" | "reversed";
 }
+
+export interface Settings {
+  has_key: boolean;
+  key_hint: string; // last 4 characters only; the full key never comes back
+  model: string;
+  cursor: boolean | null; // null = never chosen
+}
+
+export interface ModelInfo {
+  id: string;
+  name: string;
+}

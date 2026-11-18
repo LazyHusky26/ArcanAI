@@ -1,5 +1,5 @@
 import { MOCK_SPREADS, mockStream } from "./mock";
-import type { Depth, DrawnCard, Spread } from "./types";
+import type { Depth, DrawnCard, ModelInfo, Settings, Spread } from "./types";
 
 const API = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 // Talks to the real backend by default. For UI work without it, create frontend/.env with VITE_USE_MOCK=true
@@ -61,3 +61,42 @@ export async function streamReading(
     }
   }
 }
+
+// ---------- Settings ----------
+// Errors from the backend come as { detail: "..." }
+async function call<T>(path: string, init?: RequestInit): Promise<T> {
+  let res: Response;
+  try {
+    res = await fetch(`${API}${path}`, {
+      ...init,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch {
+    throw new Error("Could not reach the server. Is the backend running?");
+  }
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(typeof body?.detail === "string" ? body.detail : "Something went wrong.");
+  }
+  return res.json();
+}
+
+const MOCK_SETTINGS: Settings = { has_key: true, key_hint: "mock", model: "mock-model", cursor: null };
+const MOCK_MODELS: ModelInfo[] = [{ id: "mock-model", name: "Mock model" }];
+
+export const getSettings = (): Promise<Settings> => (USE_MOCK ? Promise.resolve(MOCK_SETTINGS) : call("/settings"));
+
+export const saveSettings = (changes: { model?: string; cursor?: boolean }): Promise<Settings> =>
+  USE_MOCK ? Promise.resolve(MOCK_SETTINGS) : call("/settings", { method: "PUT", body: JSON.stringify(changes) });
+
+// Checks the key with Gemini and saves it if it works; returns the text models
+export const saveKey = async (apiKey: string): Promise<ModelInfo[]> =>
+  USE_MOCK
+    ? MOCK_MODELS
+    : (await call<{ models: ModelInfo[] }>("/settings/key", { method: "POST", body: JSON.stringify({ api_key: apiKey }) })).models;
+
+export const getModels = async (): Promise<ModelInfo[]> =>
+  USE_MOCK ? MOCK_MODELS : (await call<{ models: ModelInfo[] }>("/settings/models")).models;
+
+export const removeKey = (): Promise<Settings> =>
+  USE_MOCK ? Promise.resolve(MOCK_SETTINGS) : call("/settings/key", { method: "DELETE" });

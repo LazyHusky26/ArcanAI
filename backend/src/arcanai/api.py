@@ -5,11 +5,11 @@ from typing import Literal
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from arcanai import embedder
+from arcanai import embedder, settings
 from arcanai.engine import SPREADS, draw
-from arcanai.llm import LLMError, stream_reading
+from arcanai.llm import LLMError, list_models, stream_reading
 from arcanai.prompt import DEPTH, build_prompt, clean_question
 
 
@@ -34,6 +34,15 @@ class ReadingRequest(BaseModel):
     question: str
     spread: Literal[tuple(SPREADS)]  # only spreads that exist in spreads.json
     depth: Literal[tuple(DEPTH)] = "detailed"
+
+
+class SettingsUpdate(BaseModel):
+    model: str | None = Field(default=None, max_length=100)
+    cursor: bool | None = None
+
+
+class KeyRequest(BaseModel):
+    api_key: str = Field(max_length=300)
 
 
 def _sse(event: str, data) -> str:
@@ -66,3 +75,56 @@ def reading(req: ReadingRequest):
             yield _sse("error", str(e))
 
     return StreamingResponse(events(), media_type="text/event-stream")
+
+
+# ---------- Settings (the popup in the UI) ----------
+# The API key is only ever written here; it is never sent back to the browser (just the last 4 characters).
+
+
+@app.get("/settings")
+def get_settings():
+    saved = settings.load()
+    key = settings.api_key()
+    return {
+        "has_key": bool(key),
+        "key_hint": key[-4:] if key else "",
+        "model": settings.model(),
+        "cursor": saved.get("cursor"),  # null = never chosen
+    }
+
+
+@app.post("/settings/key")
+def set_key(req: KeyRequest):
+    key = req.api_key.strip()
+    if not key:
+        raise HTTPException(status_code=400, detail="Paste your API key first.")
+    try:
+        models = list_models(key)  # also proves the key works
+    except LLMError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    settings.save(api_key=key)
+    return {"models": models}
+
+
+@app.delete("/settings/key")
+def delete_key():
+    settings.save(api_key=None)
+    return get_settings()
+
+
+@app.get("/settings/models")
+def get_models():
+    key = settings.api_key()
+    if not key:
+        raise HTTPException(status_code=400, detail="Add your API key first.")
+    try:
+        return {"models": list_models(key)}
+    except LLMError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.put("/settings")
+def update_settings(req: SettingsUpdate):
+    changes = {k: v for k, v in req.model_dump().items() if v is not None}  # skip what wasn't sent
+    settings.save(**changes)
+    return get_settings()

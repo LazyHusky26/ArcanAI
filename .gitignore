@@ -4,7 +4,7 @@ CLAUDE.md
 # Secrets
 .env
 
-# Scraped corpus (copyrighted, never commit)
+# Card text (third-party, not redistributed)
 data/
 
 # Downloaded embedding models (~1.2GB)

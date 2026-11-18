@@ -1,0 +1,11 @@
+{
+  "name": "arcanai",
+  "private": true,
+  "scripts": {
+    "setup": "npm install && npm --prefix frontend install && cd backend && uv sync",
+    "dev": "concurrently -n api,web -c magenta,cyan \"cd backend && uv run uvicorn arcanai.api:app --reload\" \"npm --prefix frontend run dev\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}

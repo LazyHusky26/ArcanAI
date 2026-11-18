@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { getSpreads, streamReading } from "./api";
+import { getSettings, getSpreads, saveSettings, streamReading } from "./api";
 import type { Depth, DrawnCard, Spread } from "./types";
 
 // ask: the form | drawing: waiting for the cards | reading: cards shown, text streaming
@@ -16,6 +16,11 @@ interface State {
   revealed: boolean[]; // which cards have been flipped face-up
   text: string;
   error: string;
+  settingsOpen: boolean;
+  cursorOn: boolean;
+  setSettingsOpen: (open: boolean) => void;
+  setCursorOn: (on: boolean) => void;
+  loadSettings: () => Promise<void>;
   loadSpreads: () => Promise<void>;
   setSpread: (id: string) => void;
   setDepth: (d: Depth) => void;
@@ -36,6 +41,23 @@ export const useStore = create<State>((set, get) => ({
   revealed: [],
   text: "",
   error: "",
+  settingsOpen: false,
+  // Until the user chooses, the smoke cursor is on unless their system asks for reduced motion
+  cursorOn: !window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+
+  setSettingsOpen: (settingsOpen) => set({ settingsOpen }),
+  setCursorOn: (cursorOn) => {
+    set({ cursorOn });
+    saveSettings({ cursor: cursorOn }).catch(() => {}); // the switch still works if saving fails
+  },
+  loadSettings: async () => {
+    try {
+      const { cursor } = await getSettings();
+      if (cursor !== null) set({ cursorOn: cursor });
+    } catch {
+      // the backend may be down; loadSpreads shows that error
+    }
+  },
 
   loadSpreads: async () => {
     try {
