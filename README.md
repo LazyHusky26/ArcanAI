@@ -12,6 +12,8 @@ You ask a question, pick a spread (1, 3 or 5 cards) and how long you want the re
 2. **Retrieve.** For each card, the app searches a Postgres database (pgvector) for the most relevant notes, using a local embedding model (Qwen3-Embedding-0.6B).
 3. **Write.** One call to Gemini with the question, the cards and the notes. The reply streams to the browser.
 
+<img width="1264" height="707" alt="image" src="https://github.com/user-attachments/assets/8e057cc4-2d18-4f00-a335-9941f24bfaf2" />
+
 ## Stack
 
 - Backend: Python, FastAPI, psycopg 3, sentence-transformers (managed with `uv`)
