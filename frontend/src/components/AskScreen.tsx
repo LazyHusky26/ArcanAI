@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useStore } from "../store";
 import Sigil from "./Sigil";
 import type { Depth } from "../types";
@@ -58,6 +58,49 @@ export default function AskScreen() {
   const shown = spreads.find((s) => s.id === (hovered ?? spreadId));
   const selected = spreads.find((s) => s.id === spreadId);
 
+  // On small screens the spread row scrolls sideways. The chosen spread is kept in the middle,
+  // and scrolling a different one to the middle chooses it.
+  const fansRef = useRef<HTMLDivElement>(null);
+  const first = useRef(true);
+  const fromScroll = useRef(false); // the last change came from the user scrolling, so don't scroll again
+  const lockUntil = useRef(0); // while we scroll the row ourselves, ignore its scroll events
+
+  useEffect(() => {
+    if (fromScroll.current) {
+      fromScroll.current = false;
+      return;
+    }
+    const row = fansRef.current;
+    const el = row?.querySelector<HTMLElement>(".fan-btn.active");
+    if (row && el) {
+      lockUntil.current = Date.now() + 600;
+      row.scrollTo({ left: el.offsetLeft - (row.clientWidth - el.offsetWidth) / 2, behavior: first.current ? "auto" : "smooth" });
+    }
+    first.current = false;
+  }, [spreadId, spreads.length]);
+
+  const onScroll = () => {
+    const row = fansRef.current;
+    if (!row || Date.now() < lockUntil.current) return;
+    const middle = row.scrollLeft + row.clientWidth / 2;
+    let id = "";
+    let nearest = Infinity;
+    for (const el of Array.from(row.querySelectorAll<HTMLElement>(".fan-btn"))) {
+      const d = Math.abs(el.offsetLeft + el.offsetWidth / 2 - middle);
+      if (d < nearest) {
+        nearest = d;
+        id = el.dataset.id ?? "";
+      }
+    }
+    if (id && id !== spreadId) {
+      fromScroll.current = true;
+      setSpread(id);
+    }
+  };
+
+  const index = spreads.findIndex((s) => s.id === spreadId);
+  const step = (by: number) => spreads[index + by] && setSpread(spreads[index + by].id);
+
   return (
     <motion.form
       className="ask"
@@ -89,13 +132,18 @@ export default function AskScreen() {
 
       <motion.div variants={item}>
         <label>Choose a spread</label>
-        <div className="fans" role="radiogroup">
+        <div className="fans-wrap">
+        <button type="button" className="fans-arrow prev" onClick={() => step(-1)} disabled={index <= 0} aria-label="Previous spread">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7" /></svg>
+        </button>
+        <div className="fans" role="radiogroup" ref={fansRef} onScroll={onScroll}>
           {spreads.map((s) => (
             <motion.button
               type="button"
               role="radio"
               aria-checked={s.id === spreadId}
               key={s.id}
+              data-id={s.id}
               className={`fan-btn ${s.id === spreadId ? "active" : ""}`}
               onClick={() => setSpread(s.id)}
               onHoverStart={() => setHovered(s.id)}
@@ -108,6 +156,10 @@ export default function AskScreen() {
               <span className="fan-name">{s.name}</span>
             </motion.button>
           ))}
+        </div>
+        <button type="button" className="fans-arrow next" onClick={() => step(1)} disabled={index < 0 || index >= spreads.length - 1} aria-label="Next spread">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" /></svg>
+        </button>
         </div>
 
         {/* The description of whichever spread you are pointing at (or have chosen) */}

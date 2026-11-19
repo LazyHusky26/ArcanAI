@@ -5,9 +5,25 @@ import type { DrawnCard } from "../types";
 // "The Fool" -> "the-fool": the image filename in public/cards/
 const slug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-const CARD_W = 160; // keep in sync with --card-w in styles.css
-const GAP = 24;
 const START_Y = -30; // lines the pile up with the centre of the collapsing ring
+const SLOT_EXTRA = 84; // height of a slot beyond the card itself (label, caption, gaps)
+
+// Mirrors the CSS (--pad, --gap, --card-w), so each card knows where it will land and where the pile is
+function layout(index: number, total: number) {
+  const vw = window.innerWidth;
+  const phone = vw <= 600;
+  const pad = phone ? 16 : 20;
+  const gap = phone ? 12 : 24;
+  const w = Math.min(160, Math.max(88, (vw - 2 * pad - 2 * gap - 1) / 3));
+  const h = w * 1.4125;
+  const perRow = Math.max(1, Math.floor((Math.min(980, vw) - 2 * pad + gap) / (w + gap)));
+  const row = Math.floor(index / perRow);
+  const inRow = Math.min(perRow, total - row * perRow);
+  return {
+    x: ((inRow - 1) / 2 - (index % perRow)) * (w + gap), // from the slot to the middle of its row
+    y: START_Y - row * (h + SLOT_EXTRA + gap), // cards on lower rows start higher up
+  };
+}
 
 interface Props {
   card: DrawnCard;
@@ -30,7 +46,7 @@ export default function TarotCard({ card, index, total, revealed, onFlip }: Prop
   const delay = 0.35 + index * 0.18; // wait for the ring to gather, then deal one card at a time
 
   // Where the card starts: stacked in the middle of the row, where the deck was
-  const [startX] = useState(((total - 1) / 2 - index) * (CARD_W + GAP));
+  const [start] = useState(() => layout(index, total));
   const [startTilt] = useState((index - (total - 1) / 2) * -10 + (Math.random() - 0.5) * 12);
 
   // Mouse position over the card (0 to 1) drives a springy 3D tilt and a moving glare
@@ -56,7 +72,7 @@ export default function TarotCard({ card, index, total, revealed, onFlip }: Prop
     <motion.div
       className="slot"
       // Starts as a loose pile where the ring collapsed (already visible, so there is no gap), then flies out
-      initial={{ x: startX, y: START_Y, rotate: startTilt, scale: 0.8, opacity: 0, filter: "blur(4px)" }}
+      initial={{ x: start.x, y: start.y, rotate: startTilt, scale: 0.8, opacity: 0, filter: "blur(4px)" }}
       animate={{ x: 0, y: [null, -120, 0], rotate: 0, scale: 1, opacity: 1, filter: "blur(0px)" }}
       // x, rotate and scale are springs (they overshoot and settle); y is an arc up and over, so the path curves
       transition={{

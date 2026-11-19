@@ -6,6 +6,7 @@ import GhostCursor from "./components/GhostCursor";
 import ReadingScreen from "./components/ReadingScreen";
 import SettingsModal from "./components/SettingsModal";
 import WelcomeScreen from "./components/WelcomeScreen";
+import { IS_TOUCH } from "./device";
 import { useStore } from "./store";
 
 // Wraps each screen so it fades in and the old one fades out
@@ -26,7 +27,7 @@ export default function App() {
   const { phase, status, error, init, reset, settingsOpen, setSettingsOpen, cursorOn } = useStore();
 
   useEffect(() => {
-    init();
+    init(true); // first load: wait for the backend to finish starting
   }, [init]);
 
   const onTable = phase === "drawing" || phase === "reading" || phase === "done";
@@ -34,7 +35,7 @@ export default function App() {
   return (
     <>
       <Atmosphere />
-      {cursorOn && (
+      {cursorOn && !IS_TOUCH && (
         <div className="ghost-layer">
           <GhostCursor
             color="#5d8fb3"

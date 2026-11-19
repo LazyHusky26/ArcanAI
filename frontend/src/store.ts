@@ -6,6 +6,10 @@ import type { Depth, DrawnCard, Spread } from "./types";
 // reading: cards shown, text streaming | done: finished | error: something failed
 export type Phase = "welcome" | "ask" | "drawing" | "reading" | "done" | "error";
 
+const RETRY_MS = 1500; // how often to knock while the backend is starting
+const GIVE_UP_MS = 90_000; // after this long, show the "can't reach the server" message
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 // What the welcome screen found: still checking, backend down, no key, no model, or good to go
 export type Status = "checking" | "offline" | "no_key" | "no_model" | "ready";
 
@@ -24,7 +28,7 @@ interface State {
   cursorOn: boolean;
   setSettingsOpen: (open: boolean) => void;
   setCursorOn: (on: boolean) => void;
-  init: () => Promise<void>;
+  init: (wait?: boolean) => Promise<void>;
   begin: () => void;
   setSpread: (id: string) => void;
   setDepth: (d: Depth) => void;
@@ -59,15 +63,25 @@ export const useStore = create<State>((set, get) => ({
   },
 
   // Checks the backend and the saved key/model. Runs at start and whenever Settings closes.
-  init: async () => {
-    try {
-      const { has_key, model, cursor } = await getSettings();
-      const status: Status = !has_key ? "no_key" : !model ? "no_model" : "ready";
-      if (cursor !== null) set({ cursorOn: cursor });
-      if (status === "ready" && get().spreads.length === 0) set({ spreads: await getSpreads() });
-      set({ status });
-    } catch {
-      set({ status: "offline" });
+  // With wait=true (first load) it keeps retrying while the backend starts up (it loads the embedding model first).
+  init: async (wait = false) => {
+    if (wait) set({ status: "checking" });
+    const deadline = Date.now() + GIVE_UP_MS;
+    for (;;) {
+      try {
+        const { has_key, model, cursor } = await getSettings();
+        const status: Status = !has_key ? "no_key" : !model ? "no_model" : "ready";
+        if (cursor !== null) set({ cursorOn: cursor });
+        if (status === "ready" && get().spreads.length === 0) set({ spreads: await getSpreads() });
+        set({ status });
+        break;
+      } catch {
+        if (!wait || Date.now() > deadline) {
+          set({ status: "offline" });
+          break;
+        }
+        await sleep(RETRY_MS);
+      }
     }
     // If the key went away while on the question form, go back to the welcome screen
     if (get().phase === "ask" && get().status !== "ready") set({ phase: "welcome" });

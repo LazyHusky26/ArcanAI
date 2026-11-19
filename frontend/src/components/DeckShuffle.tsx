@@ -14,6 +14,7 @@ export default function DeckShuffle() {
       // On exit the ring shrinks into the centre (while spinning faster, below); the dealt cards appear from that spot
       exit={{ opacity: 0, scale: 0.15, transition: { duration: 0.6, ease: "easeIn" } }}
     >
+      <div className="deck-scale">
       <div className="deck-glow" />
       {/* A wider, slower ring of tiny lights turning the other way */}
       <motion.div className="ring-tilt" style={{ rotateX: -15 }}>
@@ -52,6 +53,7 @@ export default function DeckShuffle() {
           ))}
         </motion.div>
       </motion.div>
+      </div>
     </motion.div>
   );
 }

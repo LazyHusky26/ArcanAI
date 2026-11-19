@@ -4,6 +4,7 @@ from typing import Literal
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
@@ -20,6 +21,10 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="ArcanAI", lifespan=lifespan)
+
+# Only answer requests addressed to localhost. This blocks DNS rebinding, where a website
+# points its own domain at 127.0.0.1 to talk to this API from the user's browser.
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost", "127.0.0.1"])
 
 # Let the React dev server (Vite, port 5173) call this API from the browser
 app.add_middleware(

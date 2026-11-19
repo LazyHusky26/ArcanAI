@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useEffect, useState, type FormEvent } from "react";
 import { getModels, getSettings, removeKey, saveKey, saveSettings } from "../api";
+import { IS_TOUCH } from "../device";
 import { useStore } from "../store";
 import type { ModelInfo, Settings } from "../types";
 
@@ -139,6 +140,7 @@ export default function SettingsModal() {
           </section>
         )}
 
+        {!IS_TOUCH && (
         <section>
           <label className="toggle">
             <span>Smoke cursor effect</span>
@@ -146,6 +148,7 @@ export default function SettingsModal() {
             <i aria-hidden="true" />
           </label>
         </section>
+        )}
 
         {error && <p className="modal-error">{error}</p>}
       </motion.div>

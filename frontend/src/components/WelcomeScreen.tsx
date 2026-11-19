@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useStore, type Status } from "../store";
 import Sigil from "./Sigil";
 
@@ -10,6 +11,13 @@ const PROBLEMS: Partial<Record<Status, string>> = {
 
 export default function WelcomeScreen() {
   const { status, begin, init } = useStore();
+  // If the backend takes a while, explain why
+  const [slow, setSlow] = useState(false);
+  useEffect(() => {
+    if (status !== "checking") return setSlow(false);
+    const t = setTimeout(() => setSlow(true), 6000);
+    return () => clearTimeout(t);
+  }, [status]);
 
   return (
     <div className="welcome">
@@ -19,7 +27,12 @@ export default function WelcomeScreen() {
         <p className="tagline">Ask, and the cards will answer.</p>
       </header>
 
-      {status === "checking" && <p className="status">Waking the cards…</p>}
+      {status === "checking" && (
+        <>
+          <div className="loader" role="progressbar" aria-label="Starting up" />
+          <p className="status">{slow ? "Still starting. The first launch loads the reading model, so it can take a moment." : "Waking the cards…"}</p>
+        </>
+      )}
       {status === "ready" && (
         <>
           <p className="hint">Welcome. Take a breath, think of a question, and begin when you're ready.</p>
@@ -34,7 +47,7 @@ export default function WelcomeScreen() {
             {PROBLEMS[status]}
           </p>
           {status === "offline" && (
-            <button className="ghost" onClick={init}>
+            <button className="ghost" onClick={() => init(true)}>
               Try again
             </button>
           )}
