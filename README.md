@@ -28,15 +28,17 @@ This installs the root, frontend and backend packages.
 
 **2. Database**
 
+From the repo root:
+
 ```
-docker run -d --name tarot-db -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=tarot -p 5433:5432 -v tarot-data:/var/lib/postgresql pgvector/pgvector:pg18
+docker compose up -d
 ```
 
 I used Postgres with the pgvector extension to build this, and the app needs both. Docker is just the easiest way to get one. Any Postgres with pgvector works, so point `DATABASE_URL` at it (see Config below). Other databases aren't supported.
 
 **3. Config (optional)**
 
-A `.env` file isn't needed. The defaults work with the Docker command above. Copy `.env.example` to `.env` only if you want to change the database address or the embedding model.
+A `.env` file isn't needed. The defaults work with the Docker setup above. Copy `.env.example` to `.env` only if you want to change the database address or the embedding model.
 
 Your Gemini key isn't set here, it's set in the app (see Settings below).
 

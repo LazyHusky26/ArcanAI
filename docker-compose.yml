@@ -1,0 +1,15 @@
+services:
+  db:
+    image: pgvector/pgvector:pg18
+    container_name: tarot-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: tarot
+    ports:
+      - "5433:5432"
+    volumes:
+      - tarot-data:/var/lib/postgresql
+
+volumes:
+  tarot-data:
