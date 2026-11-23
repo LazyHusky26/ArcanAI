@@ -78,7 +78,8 @@ def stream_reading(system: str, user: str) -> Iterator[str]:
     if not model:
         raise LLMError("Pick a model in Settings (top right) first.")
     try:
-        stream = _client(key).models.generate_content_stream(
+        client = _client(key)  # keep a reference, or the SDK closes it mid-stream
+        stream = client.models.generate_content_stream(
             model=model,
             contents=user,
             config=types.GenerateContentConfig(system_instruction=system),
