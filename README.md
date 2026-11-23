@@ -12,13 +12,6 @@ You ask a question, pick a spread (1, 3 or 5 cards) and how long you want the re
 2. **Retrieve.** For each card, the app searches a Postgres database (pgvector) for the most relevant notes, using a local embedding model (Qwen3-Embedding-0.6B).
 3. **Write.** One call to Gemini with the question, the cards and the notes. The reply streams to the browser.
 
-## Stack
-
-- Backend: Python, FastAPI, psycopg 3, sentence-transformers (managed with `uv`)
-- Database: Postgres + pgvector, in Docker
-- LLM: Google Gemini
-- Frontend: React, Vite, TypeScript, framer-motion
-
 ## Setup
 
 You need Docker, [uv](https://docs.astral.sh/uv/), Node 20+, and a free Gemini API key from https://aistudio.google.com/apikey. A GPU helps for embedding but isn't required.
@@ -38,6 +31,8 @@ This installs the root, frontend and backend packages.
 ```
 docker run -d --name tarot-db -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=tarot -p 5433:5432 -v tarot-data:/var/lib/postgresql pgvector/pgvector:pg18
 ```
+
+I used Postgres with the pgvector extension to build this, and the app needs both. Docker is just the easiest way to get one. Any Postgres with pgvector works, so point `DATABASE_URL` at it (see Config below). Other databases aren't supported.
 
 **3. Config (optional)**
 
@@ -68,6 +63,8 @@ uv run python -m arcanai.migrate
 uv run python -m arcanai.seed_cards
 uv run python -m arcanai.ingest
 ```
+
+`migrate` creates the tables from `backend/src/arcanai/schema.sql` (`cards`, `chunks` with a pgvector column, and `readings`), so you don't set up the database by hand. `seed_cards` fills the 78 cards, and `ingest` splits the card text into chunks and embeds them.
 
 The first ingest downloads the embedding model (about 1.2 GB) into `models/`. Ingest wipes and rebuilds the chunks, so you can re-run it any time.
 
